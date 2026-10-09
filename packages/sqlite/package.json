@@ -1,0 +1,17 @@
+{
+  "name": "@opskit/sqlite",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "SQLite adapter (node:sqlite) implementing the core repository ports.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@opskit/core": "0.1.0",
+    "drizzle-orm": "^1.0.0-rc.4"
+  }
+}

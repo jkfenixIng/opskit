@@ -1,0 +1,36 @@
+{
+  "name": "opskit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Configurable operations template: inventory, invoicing and payments for any organization.",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently --names api,web --prefix-colors blue,green --kill-others \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev -w @opskit/api",
+    "dev:web": "npm run dev -w @opskit/web",
+    "seed": "npm run seed -w @opskit/api",
+    "lint": "eslint .",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "vitest run",
+    "build": "npm run build --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "concurrently": "10.0.6",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^24.10.1",
+    "eslint": "9.39.5",
+    "jsdom": "^26.1.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.1",
+    "vitest": "5.0.3"
+  }
+}
