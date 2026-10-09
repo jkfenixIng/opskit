@@ -139,6 +139,41 @@ flowchart TB
   sqlite --> core
 ```
 
+<details>
+<summary><b>Diagram as plain text</b> — for clients that block third-party iframes</summary>
+
+GitHub renders the diagram above in a cross-origin iframe, so it fails to display when a browser or proxy blocks third-party frames. This is the same layering in plain text:
+
+```text
++-----------------------------------------------------+
+|                       apps/web                      |
+|      Next.js UI - HTTP only, never the database     |
++-----------------------------------------------------+
+                           |
+         HTTP /api/* through the Next.js proxy
+                           v
++-----------------------------------------------------+
+|                       apps/api                      |
+|       Fastify REST /v1 - the composition root       |
++-----------------------------------------------------+
+                           |
+       imports contracts, config, core and sqlite
+                           v
++-----------------------------------------------------+
+|             contracts / config / sqlite             |
+|       zod schemas / env parsing / node:sqlite       |
++-----------------------------------------------------+
+                           |
+            sqlite implements the core ports
+                           v
++-----------------------------------------------------+
+|                         core                        |
+|  domain rules, use cases, ports - zero dependencies |
++-----------------------------------------------------+
+```
+
+</details>
+
 Dependencies point inward. `packages/core` imports nothing from the other workspaces and has no runtime dependencies at all — see the [architecture invariants](#architecture-invariants) for the rules that keep it that way.
 
 - `packages/core` contains framework- and database-independent domain policies, use cases, and ports.
