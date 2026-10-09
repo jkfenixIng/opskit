@@ -11,6 +11,7 @@
 [![node:sqlite](https://img.shields.io/badge/node%3Asqlite-no%20native%20add--ons-003B57?logo=sqlite&logoColor=white)](https://nodejs.org/api/sqlite.html)
 [![Vitest](https://img.shields.io/badge/tested%20with-Vitest-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev)
 [![npm workspaces](https://img.shields.io/badge/npm-6%20workspaces-CB3837?logo=npm&logoColor=white)](https://docs.npmjs.com/cli/using-npm/workspaces)
+[![License: MIT](https://img.shields.io/badge/license-MIT-3DA639)](LICENSE)
 
 </div>
 
@@ -34,6 +35,7 @@ The policy boundary is `OrganizationSettings`: currency, time zone, payment meth
 - [Persistence and migrations](#persistence-and-migrations)
 - [Local data](#local-data)
 - [Project documents](#project-documents)
+- [License](#license)
 
 ## Quick start
 
@@ -358,3 +360,7 @@ Design material lives in [`opskit-documentos/`](opskit-documentos):
 | [03 — Arquitectura y portabilidad](opskit-documentos/03_OpsKit_Arquitectura_y_Portabilidad.pdf) | Architecture and portability |
 
 These documents are written in Spanish. The code, tests, and this README are in English.
+
+## License
+
+Released under the [MIT License](LICENSE).
