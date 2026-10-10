@@ -1,0 +1,3915 @@
+{
+  "kind": "post-migration-hono-contract-baseline",
+  "generatedBy": "apps/api/test/generate-contract-baseline.ts",
+  "note": "This is a Hono baseline. Historical Fastify parity cannot be proven from the current checkout.",
+  "cases": [
+    {
+      "id": "health",
+      "request": {
+        "method": "GET",
+        "path": "/v1/health",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "status": "ok"
+      }
+    },
+    {
+      "id": "health-head",
+      "request": {
+        "method": "HEAD",
+        "path": "/v1/health",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": null
+    },
+    {
+      "id": "login-ok",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/login",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "set-cookie": "session=<uuid>; Path=/; Expires=<http-date>; HttpOnly; SameSite=Lax"
+      },
+      "body": {
+        "token": "<uuid>",
+        "user": {
+          "id": "owner",
+          "email": "owner@example.com",
+          "role": "owner"
+        }
+      }
+    },
+    {
+      "id": "login-invalid-credentials",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/login",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Invalid credentials"
+      }
+    },
+    {
+      "id": "login-empty-json-body",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/login",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 500,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Internal server error"
+      }
+    },
+    {
+      "id": "login-malformed-json",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/login",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 500,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Internal server error"
+      }
+    },
+    {
+      "id": "login-unsupported-media-type",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/login",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/x-www-form-urlencoded"
+      },
+      "status": 500,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Internal server error"
+      }
+    },
+    {
+      "id": "session-anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/auth/session",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Session user was not found"
+      }
+    },
+    {
+      "id": "session-bearer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/auth/session",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "user": {
+          "id": "owner",
+          "email": "owner@example.com",
+          "role": "owner"
+        }
+      }
+    },
+    {
+      "id": "session-cookie",
+      "request": {
+        "method": "GET",
+        "path": "/v1/auth/session",
+        "auth": "cookie",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "user": {
+          "id": "owner",
+          "email": "owner@example.com",
+          "role": "owner"
+        }
+      }
+    },
+    {
+      "id": "logout-anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/logout",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "logout-cookie-without-origin",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/logout",
+        "auth": "cookie",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "logout-cookie-denied-origin",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/logout",
+        "auth": "cookie",
+        "origin": "denied",
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "logout-cookie-allowed-origin",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/logout",
+        "auth": "cookie",
+        "origin": "allowed",
+        "contentType": null
+      },
+      "status": 204,
+      "headers": {
+        "set-cookie": "session=; Max-Age=0; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax",
+        "access-control-allow-origin": "http://localhost:3000",
+        "access-control-allow-credentials": "true",
+        "vary": "Origin"
+      },
+      "body": null
+    },
+    {
+      "id": "logout-cookie-empty-json",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/logout",
+        "auth": "cookie",
+        "origin": "allowed",
+        "contentType": "application/json"
+      },
+      "status": 204,
+      "headers": {
+        "set-cookie": "session=; Max-Age=0; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax",
+        "access-control-allow-origin": "http://localhost:3000",
+        "access-control-allow-credentials": "true",
+        "vary": "Origin"
+      },
+      "body": null
+    },
+    {
+      "id": "logout-bearer-empty-json",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/logout",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 204,
+      "headers": {
+        "set-cookie": "session=; Max-Age=0; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax"
+      },
+      "body": null
+    },
+    {
+      "id": "preflight-allowed",
+      "request": {
+        "method": "OPTIONS",
+        "path": "/v1/products",
+        "auth": null,
+        "origin": "allowed",
+        "contentType": null
+      },
+      "status": 204,
+      "headers": {
+        "access-control-allow-origin": "http://localhost:3000",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-methods": "GET, POST, PUT, OPTIONS",
+        "access-control-allow-headers": "Authorization, Content-Type",
+        "vary": "Origin"
+      },
+      "body": null
+    },
+    {
+      "id": "preflight-denied",
+      "request": {
+        "method": "OPTIONS",
+        "path": "/v1/products",
+        "auth": null,
+        "origin": "denied",
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Origin is not allowed"
+      }
+    },
+    {
+      "id": "preflight-no-origin",
+      "request": {
+        "method": "OPTIONS",
+        "path": "/v1/products",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Origin is not allowed"
+      }
+    },
+    {
+      "id": "cors-on-401",
+      "request": {
+        "method": "GET",
+        "path": "/v1/dashboard",
+        "auth": null,
+        "origin": "allowed",
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "access-control-allow-origin": "http://localhost:3000",
+        "access-control-allow-credentials": "true",
+        "vary": "Origin"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "cookie-mutation-allowed-origin",
+      "request": {
+        "method": "POST",
+        "path": "/v1/people",
+        "auth": "cookie",
+        "origin": "allowed",
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8",
+        "access-control-allow-origin": "http://localhost:3000",
+        "access-control-allow-credentials": "true",
+        "vary": "Origin"
+      },
+      "body": {
+        "id": "<uuid>",
+        "name": "Cookie",
+        "status": "active",
+        "contactIdentifier": null,
+        "roles": [],
+        "createdAt": "<timestamp>"
+      }
+    },
+    {
+      "id": "cookie-mutation-denied-origin",
+      "request": {
+        "method": "POST",
+        "path": "/v1/people",
+        "auth": "cookie",
+        "origin": "denied",
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "cookie-mutation-no-origin",
+      "request": {
+        "method": "POST",
+        "path": "/v1/people",
+        "auth": "cookie",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "bearer-mutation-denied-origin",
+      "request": {
+        "method": "POST",
+        "path": "/v1/people",
+        "auth": "owner",
+        "origin": "denied",
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "id": "<uuid>",
+        "name": "Bearer",
+        "status": "active",
+        "contactIdentifier": null,
+        "roles": [],
+        "createdAt": "<timestamp>"
+      }
+    },
+    {
+      "id": "validation-error",
+      "request": {
+        "method": "POST",
+        "path": "/v1/people",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 400,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Invalid request",
+        "issues": [
+          {
+            "expected": "string",
+            "code": "invalid_type",
+            "path": [
+              "name"
+            ],
+            "message": "Invalid input: expected string, received undefined"
+          }
+        ]
+      }
+    },
+    {
+      "id": "required-body-empty-json",
+      "request": {
+        "method": "POST",
+        "path": "/v1/people",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 500,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Internal server error"
+      }
+    },
+    {
+      "id": "body-at-limit",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/login",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Invalid credentials"
+      }
+    },
+    {
+      "id": "body-over-limit",
+      "request": {
+        "method": "POST",
+        "path": "/v1/auth/login",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 500,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Internal server error"
+      }
+    },
+    {
+      "id": "param-over-limit",
+      "request": {
+        "method": "POST",
+        "path": "/v1/products/aaaaaaaaaaaaaaaaaaaaaaaaaaa…(124 chars)",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 414,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": {
+        "error": "Bad Request",
+        "code": "FST_ERR_MAX_PARAM_LENGTH",
+        "message": "'/v1/products/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/movements' is exceeding the max param length",
+        "statusCode": 414
+      }
+    },
+    {
+      "id": "unknown-route",
+      "request": {
+        "method": "GET",
+        "path": "/v1/missing",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "message": "Route GET:/v1/missing not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+    {
+      "id": "unsupported-method-delete",
+      "request": {
+        "method": "DELETE",
+        "path": "/v1/health",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "message": "Route DELETE:/v1/health not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+    {
+      "id": "unsupported-method-patch",
+      "request": {
+        "method": "PATCH",
+        "path": "/v1/settings",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "message": "Route PATCH:/v1/settings not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+    {
+      "id": "trailing-slash",
+      "request": {
+        "method": "GET",
+        "path": "/v1/health/",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "message": "Route GET:/v1/health/ not found",
+        "error": "Not Found",
+        "statusCode": 404
+      }
+    },
+    {
+      "id": "GET /v1/settings as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/settings",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/settings as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/settings",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "name": "Test Org",
+        "currency": {
+          "code": "USD",
+          "minorUnits": 2
+        },
+        "timeZone": "UTC",
+        "paymentMethods": [
+          {
+            "code": "cash",
+            "label": "Cash",
+            "enabled": true,
+            "requiresReference": false,
+            "feeBasisPoints": 0
+          },
+          {
+            "code": "card",
+            "label": "Card",
+            "enabled": true,
+            "requiresReference": true,
+            "feeBasisPoints": 290
+          },
+          {
+            "code": "transfer",
+            "label": "Bank transfer",
+            "enabled": true,
+            "requiresReference": true,
+            "feeBasisPoints": 0
+          }
+        ],
+        "modules": [
+          {
+            "key": "dashboard",
+            "label": "Dashboard",
+            "enabled": true
+          },
+          {
+            "key": "inventory",
+            "label": "Inventory",
+            "enabled": true
+          },
+          {
+            "key": "invoicing",
+            "label": "Invoicing",
+            "enabled": true
+          },
+          {
+            "key": "settings",
+            "label": "Organization settings",
+            "enabled": true
+          },
+          {
+            "key": "cash",
+            "label": "Cash management",
+            "enabled": true
+          },
+          {
+            "key": "people",
+            "label": "People",
+            "enabled": true
+          },
+          {
+            "key": "offerings",
+            "label": "Offerings",
+            "enabled": true
+          },
+          {
+            "key": "audit",
+            "label": "Audit and alerts",
+            "enabled": true
+          },
+          {
+            "key": "compensation",
+            "label": "Compensation",
+            "enabled": true
+          }
+        ],
+        "operations": {
+          "inventory": {
+            "allowNegativeStock": false,
+            "defaultLowStockThreshold": 5
+          },
+          "invoicing": {
+            "allowPartialPayments": true,
+            "defaultTaxRateBasisPoints": 0,
+            "numberPrefix": "INV",
+            "numberPadding": 6
+          },
+          "compensation": {
+            "rounding": {
+              "mode": "halfUp",
+              "increment": "minor"
+            },
+            "immediateCommission": false,
+            "advances": {
+              "maxPerRequestMinor": null,
+              "maxPerPeriodMinor": null,
+              "maxShareOfEstimatedEarningsBasisPoints": null,
+              "outstandingBalancePolicy": "carryOver"
+            },
+            "payouts": {
+              "allowPartial": true
+            }
+          }
+        },
+        "accessPolicy": {
+          "owner": [
+            "dashboard:read",
+            "settings:read",
+            "settings:write",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "invoices:write",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "people:write",
+            "offerings:read",
+            "offerings:write",
+            "audit:read",
+            "compensation:read",
+            "compensation:write",
+            "compensation:approve"
+          ],
+          "manager": [
+            "dashboard:read",
+            "settings:read",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "invoices:write",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "people:write",
+            "offerings:read",
+            "offerings:write",
+            "audit:read",
+            "compensation:read",
+            "compensation:write"
+          ],
+          "staff": [
+            "dashboard:read",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "offerings:read"
+          ],
+          "viewer": [
+            "dashboard:read",
+            "settings:read",
+            "inventory:read",
+            "invoices:read",
+            "cash:read",
+            "people:read",
+            "offerings:read",
+            "audit:read"
+          ]
+        }
+      }
+    },
+    {
+      "id": "GET /v1/settings as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/settings",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "name": "Test Org",
+        "currency": {
+          "code": "USD",
+          "minorUnits": 2
+        },
+        "timeZone": "UTC",
+        "paymentMethods": [
+          {
+            "code": "cash",
+            "label": "Cash",
+            "enabled": true,
+            "requiresReference": false,
+            "feeBasisPoints": 0
+          },
+          {
+            "code": "card",
+            "label": "Card",
+            "enabled": true,
+            "requiresReference": true,
+            "feeBasisPoints": 290
+          },
+          {
+            "code": "transfer",
+            "label": "Bank transfer",
+            "enabled": true,
+            "requiresReference": true,
+            "feeBasisPoints": 0
+          }
+        ],
+        "modules": [
+          {
+            "key": "dashboard",
+            "label": "Dashboard",
+            "enabled": true
+          },
+          {
+            "key": "inventory",
+            "label": "Inventory",
+            "enabled": true
+          },
+          {
+            "key": "invoicing",
+            "label": "Invoicing",
+            "enabled": true
+          },
+          {
+            "key": "settings",
+            "label": "Organization settings",
+            "enabled": true
+          },
+          {
+            "key": "cash",
+            "label": "Cash management",
+            "enabled": true
+          },
+          {
+            "key": "people",
+            "label": "People",
+            "enabled": true
+          },
+          {
+            "key": "offerings",
+            "label": "Offerings",
+            "enabled": true
+          },
+          {
+            "key": "audit",
+            "label": "Audit and alerts",
+            "enabled": true
+          },
+          {
+            "key": "compensation",
+            "label": "Compensation",
+            "enabled": true
+          }
+        ],
+        "operations": {
+          "inventory": {
+            "allowNegativeStock": false,
+            "defaultLowStockThreshold": 5
+          },
+          "invoicing": {
+            "allowPartialPayments": true,
+            "defaultTaxRateBasisPoints": 0,
+            "numberPrefix": "INV",
+            "numberPadding": 6
+          },
+          "compensation": {
+            "rounding": {
+              "mode": "halfUp",
+              "increment": "minor"
+            },
+            "immediateCommission": false,
+            "advances": {
+              "maxPerRequestMinor": null,
+              "maxPerPeriodMinor": null,
+              "maxShareOfEstimatedEarningsBasisPoints": null,
+              "outstandingBalancePolicy": "carryOver"
+            },
+            "payouts": {
+              "allowPartial": true
+            }
+          }
+        },
+        "accessPolicy": {
+          "owner": [
+            "dashboard:read",
+            "settings:read",
+            "settings:write",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "invoices:write",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "people:write",
+            "offerings:read",
+            "offerings:write",
+            "audit:read",
+            "compensation:read",
+            "compensation:write",
+            "compensation:approve"
+          ],
+          "manager": [
+            "dashboard:read",
+            "settings:read",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "invoices:write",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "people:write",
+            "offerings:read",
+            "offerings:write",
+            "audit:read",
+            "compensation:read",
+            "compensation:write"
+          ],
+          "staff": [
+            "dashboard:read",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "offerings:read"
+          ],
+          "viewer": [
+            "dashboard:read",
+            "settings:read",
+            "inventory:read",
+            "invoices:read",
+            "cash:read",
+            "people:read",
+            "offerings:read",
+            "audit:read"
+          ]
+        }
+      }
+    },
+    {
+      "id": "GET /v1/settings as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/settings",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "name": "Test Org",
+        "currency": {
+          "code": "USD",
+          "minorUnits": 2
+        },
+        "timeZone": "UTC",
+        "paymentMethods": [
+          {
+            "code": "cash",
+            "label": "Cash",
+            "enabled": true,
+            "requiresReference": false,
+            "feeBasisPoints": 0
+          },
+          {
+            "code": "card",
+            "label": "Card",
+            "enabled": true,
+            "requiresReference": true,
+            "feeBasisPoints": 290
+          },
+          {
+            "code": "transfer",
+            "label": "Bank transfer",
+            "enabled": true,
+            "requiresReference": true,
+            "feeBasisPoints": 0
+          }
+        ],
+        "modules": [
+          {
+            "key": "dashboard",
+            "label": "Dashboard",
+            "enabled": true
+          },
+          {
+            "key": "inventory",
+            "label": "Inventory",
+            "enabled": true
+          },
+          {
+            "key": "invoicing",
+            "label": "Invoicing",
+            "enabled": true
+          },
+          {
+            "key": "settings",
+            "label": "Organization settings",
+            "enabled": true
+          },
+          {
+            "key": "cash",
+            "label": "Cash management",
+            "enabled": true
+          },
+          {
+            "key": "people",
+            "label": "People",
+            "enabled": true
+          },
+          {
+            "key": "offerings",
+            "label": "Offerings",
+            "enabled": true
+          },
+          {
+            "key": "audit",
+            "label": "Audit and alerts",
+            "enabled": true
+          },
+          {
+            "key": "compensation",
+            "label": "Compensation",
+            "enabled": true
+          }
+        ],
+        "operations": {
+          "inventory": {
+            "allowNegativeStock": false,
+            "defaultLowStockThreshold": 5
+          },
+          "invoicing": {
+            "allowPartialPayments": true,
+            "defaultTaxRateBasisPoints": 0,
+            "numberPrefix": "INV",
+            "numberPadding": 6
+          },
+          "compensation": {
+            "rounding": {
+              "mode": "halfUp",
+              "increment": "minor"
+            },
+            "immediateCommission": false,
+            "advances": {
+              "maxPerRequestMinor": null,
+              "maxPerPeriodMinor": null,
+              "maxShareOfEstimatedEarningsBasisPoints": null,
+              "outstandingBalancePolicy": "carryOver"
+            },
+            "payouts": {
+              "allowPartial": true
+            }
+          }
+        },
+        "accessPolicy": {
+          "owner": [
+            "dashboard:read",
+            "settings:read",
+            "settings:write",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "invoices:write",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "people:write",
+            "offerings:read",
+            "offerings:write",
+            "audit:read",
+            "compensation:read",
+            "compensation:write",
+            "compensation:approve"
+          ],
+          "manager": [
+            "dashboard:read",
+            "settings:read",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "invoices:write",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "people:write",
+            "offerings:read",
+            "offerings:write",
+            "audit:read",
+            "compensation:read",
+            "compensation:write"
+          ],
+          "staff": [
+            "dashboard:read",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "offerings:read"
+          ],
+          "viewer": [
+            "dashboard:read",
+            "settings:read",
+            "inventory:read",
+            "invoices:read",
+            "cash:read",
+            "people:read",
+            "offerings:read",
+            "audit:read"
+          ]
+        }
+      }
+    },
+    {
+      "id": "PUT /v1/settings as anonymous",
+      "request": {
+        "method": "PUT",
+        "path": "/v1/settings",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "PUT /v1/settings as viewer",
+      "request": {
+        "method": "PUT",
+        "path": "/v1/settings",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: settings:write"
+      }
+    },
+    {
+      "id": "PUT /v1/settings as manager",
+      "request": {
+        "method": "PUT",
+        "path": "/v1/settings",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: settings:write"
+      }
+    },
+    {
+      "id": "PUT /v1/settings as owner",
+      "request": {
+        "method": "PUT",
+        "path": "/v1/settings",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "name": "Changed",
+        "currency": {
+          "code": "USD",
+          "minorUnits": 2
+        },
+        "timeZone": "UTC",
+        "paymentMethods": [
+          {
+            "code": "cash",
+            "label": "Cash",
+            "enabled": true,
+            "requiresReference": false,
+            "feeBasisPoints": 0
+          },
+          {
+            "code": "card",
+            "label": "Card",
+            "enabled": true,
+            "requiresReference": true,
+            "feeBasisPoints": 290
+          },
+          {
+            "code": "transfer",
+            "label": "Bank transfer",
+            "enabled": true,
+            "requiresReference": true,
+            "feeBasisPoints": 0
+          }
+        ],
+        "modules": [
+          {
+            "key": "dashboard",
+            "label": "Dashboard",
+            "enabled": true
+          },
+          {
+            "key": "inventory",
+            "label": "Inventory",
+            "enabled": true
+          },
+          {
+            "key": "invoicing",
+            "label": "Invoicing",
+            "enabled": true
+          },
+          {
+            "key": "settings",
+            "label": "Organization settings",
+            "enabled": true
+          },
+          {
+            "key": "cash",
+            "label": "Cash management",
+            "enabled": true
+          },
+          {
+            "key": "people",
+            "label": "People",
+            "enabled": true
+          },
+          {
+            "key": "offerings",
+            "label": "Offerings",
+            "enabled": true
+          },
+          {
+            "key": "audit",
+            "label": "Audit and alerts",
+            "enabled": true
+          },
+          {
+            "key": "compensation",
+            "label": "Compensation",
+            "enabled": true
+          }
+        ],
+        "operations": {
+          "inventory": {
+            "allowNegativeStock": false,
+            "defaultLowStockThreshold": 5
+          },
+          "invoicing": {
+            "allowPartialPayments": true,
+            "defaultTaxRateBasisPoints": 0,
+            "numberPrefix": "INV",
+            "numberPadding": 6
+          },
+          "compensation": {
+            "rounding": {
+              "mode": "halfUp",
+              "increment": "minor"
+            },
+            "immediateCommission": false,
+            "advances": {
+              "maxPerRequestMinor": null,
+              "maxPerPeriodMinor": null,
+              "maxShareOfEstimatedEarningsBasisPoints": null,
+              "outstandingBalancePolicy": "carryOver"
+            },
+            "payouts": {
+              "allowPartial": true
+            }
+          }
+        },
+        "accessPolicy": {
+          "owner": [
+            "dashboard:read",
+            "settings:read",
+            "settings:write",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "invoices:write",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "people:write",
+            "offerings:read",
+            "offerings:write",
+            "audit:read",
+            "compensation:read",
+            "compensation:write",
+            "compensation:approve"
+          ],
+          "manager": [
+            "dashboard:read",
+            "settings:read",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "invoices:write",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "people:write",
+            "offerings:read",
+            "offerings:write",
+            "audit:read",
+            "compensation:read",
+            "compensation:write"
+          ],
+          "staff": [
+            "dashboard:read",
+            "inventory:read",
+            "inventory:write",
+            "invoices:read",
+            "payments:write",
+            "cash:read",
+            "cash:write",
+            "people:read",
+            "offerings:read"
+          ],
+          "viewer": [
+            "dashboard:read",
+            "settings:read",
+            "inventory:read",
+            "invoices:read",
+            "cash:read",
+            "people:read",
+            "offerings:read",
+            "audit:read"
+          ]
+        }
+      }
+    },
+    {
+      "id": "GET /v1/dashboard as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/dashboard",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/dashboard as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/dashboard",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "currency": {
+          "code": "USD",
+          "minorUnits": 2
+        },
+        "metrics": {
+          "products": 0,
+          "lowStock": 0,
+          "openInvoices": 0,
+          "collectedMinor": 0
+        },
+        "products": [],
+        "invoices": [],
+        "modules": [
+          {
+            "key": "dashboard",
+            "label": "Dashboard",
+            "enabled": true
+          },
+          {
+            "key": "inventory",
+            "label": "Inventory",
+            "enabled": true
+          },
+          {
+            "key": "invoicing",
+            "label": "Invoicing",
+            "enabled": true
+          },
+          {
+            "key": "settings",
+            "label": "Organization settings",
+            "enabled": true
+          },
+          {
+            "key": "cash",
+            "label": "Cash management",
+            "enabled": true
+          },
+          {
+            "key": "people",
+            "label": "People",
+            "enabled": true
+          },
+          {
+            "key": "offerings",
+            "label": "Offerings",
+            "enabled": true
+          },
+          {
+            "key": "audit",
+            "label": "Audit and alerts",
+            "enabled": true
+          },
+          {
+            "key": "compensation",
+            "label": "Compensation",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "GET /v1/dashboard as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/dashboard",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "currency": {
+          "code": "USD",
+          "minorUnits": 2
+        },
+        "metrics": {
+          "products": 0,
+          "lowStock": 0,
+          "openInvoices": 0,
+          "collectedMinor": 0
+        },
+        "products": [],
+        "invoices": [],
+        "modules": [
+          {
+            "key": "dashboard",
+            "label": "Dashboard",
+            "enabled": true
+          },
+          {
+            "key": "inventory",
+            "label": "Inventory",
+            "enabled": true
+          },
+          {
+            "key": "invoicing",
+            "label": "Invoicing",
+            "enabled": true
+          },
+          {
+            "key": "settings",
+            "label": "Organization settings",
+            "enabled": true
+          },
+          {
+            "key": "cash",
+            "label": "Cash management",
+            "enabled": true
+          },
+          {
+            "key": "people",
+            "label": "People",
+            "enabled": true
+          },
+          {
+            "key": "offerings",
+            "label": "Offerings",
+            "enabled": true
+          },
+          {
+            "key": "audit",
+            "label": "Audit and alerts",
+            "enabled": true
+          },
+          {
+            "key": "compensation",
+            "label": "Compensation",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "GET /v1/dashboard as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/dashboard",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "currency": {
+          "code": "USD",
+          "minorUnits": 2
+        },
+        "metrics": {
+          "products": 0,
+          "lowStock": 0,
+          "openInvoices": 0,
+          "collectedMinor": 0
+        },
+        "products": [],
+        "invoices": [],
+        "modules": [
+          {
+            "key": "dashboard",
+            "label": "Dashboard",
+            "enabled": true
+          },
+          {
+            "key": "inventory",
+            "label": "Inventory",
+            "enabled": true
+          },
+          {
+            "key": "invoicing",
+            "label": "Invoicing",
+            "enabled": true
+          },
+          {
+            "key": "settings",
+            "label": "Organization settings",
+            "enabled": true
+          },
+          {
+            "key": "cash",
+            "label": "Cash management",
+            "enabled": true
+          },
+          {
+            "key": "people",
+            "label": "People",
+            "enabled": true
+          },
+          {
+            "key": "offerings",
+            "label": "Offerings",
+            "enabled": true
+          },
+          {
+            "key": "audit",
+            "label": "Audit and alerts",
+            "enabled": true
+          },
+          {
+            "key": "compensation",
+            "label": "Compensation",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "GET /v1/products as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/products",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/products as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/products",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/products as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/products",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/products as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/products",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "POST /v1/products as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/products",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/products as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/products",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: inventory:write"
+      }
+    },
+    {
+      "id": "POST /v1/products as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/products",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "sku": "P-1",
+        "name": "Product",
+        "stock": 5,
+        "lowStockThreshold": null,
+        "id": "<uuid>",
+        "updatedAt": "<timestamp>"
+      }
+    },
+    {
+      "id": "POST /v1/products as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/products",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "sku": "P-1",
+        "name": "Product",
+        "stock": 5,
+        "lowStockThreshold": null,
+        "id": "<uuid>",
+        "updatedAt": "<timestamp>"
+      }
+    },
+    {
+      "id": "POST /v1/products/missing/movements as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/products/missing/movements",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/products/missing/movements as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/products/missing/movements",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: inventory:write"
+      }
+    },
+    {
+      "id": "POST /v1/products/missing/movements as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/products/missing/movements",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Product was not found"
+      }
+    },
+    {
+      "id": "POST /v1/products/missing/movements as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/products/missing/movements",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Product was not found"
+      }
+    },
+    {
+      "id": "GET /v1/invoices as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/invoices",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/invoices as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/invoices",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/invoices as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/invoices",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/invoices as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/invoices",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "POST /v1/invoices as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/invoices",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/invoices as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/invoices",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: invoices:write"
+      }
+    },
+    {
+      "id": "POST /v1/invoices as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/invoices",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "id": "<uuid>",
+        "number": "<invoice-number>",
+        "status": "open",
+        "currency": "USD",
+        "customerName": null,
+        "lines": [
+          {
+            "description": "Work",
+            "quantity": 1,
+            "unitPriceMinor": 100,
+            "performerId": null
+          }
+        ],
+        "paidMinor": 0,
+        "issuedAt": "<timestamp>",
+        "subtotalMinor": 100,
+        "taxMinor": 0,
+        "totalMinor": 100
+      }
+    },
+    {
+      "id": "POST /v1/invoices as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/invoices",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "id": "<uuid>",
+        "number": "<invoice-number>",
+        "status": "open",
+        "currency": "USD",
+        "customerName": null,
+        "lines": [
+          {
+            "description": "Work",
+            "quantity": 1,
+            "unitPriceMinor": 100,
+            "performerId": null
+          }
+        ],
+        "paidMinor": 0,
+        "issuedAt": "<timestamp>",
+        "subtotalMinor": 100,
+        "taxMinor": 0,
+        "totalMinor": 100
+      }
+    },
+    {
+      "id": "POST /v1/invoices/missing/payments as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/invoices/missing/payments",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/invoices/missing/payments as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/invoices/missing/payments",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: payments:write"
+      }
+    },
+    {
+      "id": "POST /v1/invoices/missing/payments as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/invoices/missing/payments",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Invoice was not found"
+      }
+    },
+    {
+      "id": "POST /v1/invoices/missing/payments as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/invoices/missing/payments",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Invoice was not found"
+      }
+    },
+    {
+      "id": "GET /v1/people as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/people",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/people as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/people",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/people as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/people",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/people as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/people",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "POST /v1/people as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/people",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/people as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/people",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: people:write"
+      }
+    },
+    {
+      "id": "POST /v1/people as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/people",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "id": "<uuid>",
+        "name": "Alex",
+        "status": "active",
+        "contactIdentifier": null,
+        "roles": [],
+        "createdAt": "<timestamp>"
+      }
+    },
+    {
+      "id": "POST /v1/people as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/people",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "id": "<uuid>",
+        "name": "Alex",
+        "status": "active",
+        "contactIdentifier": null,
+        "roles": [],
+        "createdAt": "<timestamp>"
+      }
+    },
+    {
+      "id": "GET /v1/offerings as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/offerings",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/offerings as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/offerings",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/offerings as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/offerings",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/offerings as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/offerings",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "POST /v1/offerings as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/offerings",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/offerings as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/offerings",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: offerings:write"
+      }
+    },
+    {
+      "id": "POST /v1/offerings as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/offerings",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "name": "Review",
+        "status": "active",
+        "priceMinor": null,
+        "durationMinutes": 30,
+        "id": "<uuid>",
+        "createdAt": "<timestamp>"
+      }
+    },
+    {
+      "id": "POST /v1/offerings as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/offerings",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "name": "Review",
+        "status": "active",
+        "priceMinor": null,
+        "durationMinutes": 30,
+        "id": "<uuid>",
+        "createdAt": "<timestamp>"
+      }
+    },
+    {
+      "id": "GET /v1/tills as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/tills",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/tills as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/tills",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/tills as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/tills",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/tills as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/tills",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "POST /v1/tills as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/tills",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/tills as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/tills",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: cash:write"
+      }
+    },
+    {
+      "id": "POST /v1/tills as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/tills",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "id": "<uuid>",
+        "name": "Front desk",
+        "enabled": true
+      }
+    },
+    {
+      "id": "POST /v1/tills as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/tills",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "id": "<uuid>",
+        "name": "Front desk",
+        "enabled": true
+      }
+    },
+    {
+      "id": "GET /v1/till-sessions as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/till-sessions",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/till-sessions as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/till-sessions",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/till-sessions as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/till-sessions",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/till-sessions as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/till-sessions",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "POST /v1/till-sessions/open as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/open",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/till-sessions/open as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/open",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: cash:write"
+      }
+    },
+    {
+      "id": "POST /v1/till-sessions/open as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/open",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Till was not found"
+      }
+    },
+    {
+      "id": "POST /v1/till-sessions/open as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/open",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Till was not found"
+      }
+    },
+    {
+      "id": "POST /v1/till-sessions/missing/operations as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/missing/operations",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/till-sessions/missing/operations as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/missing/operations",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: cash:write"
+      }
+    },
+    {
+      "id": "POST /v1/till-sessions/missing/operations as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/missing/operations",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Till session was not found"
+      }
+    },
+    {
+      "id": "POST /v1/till-sessions/missing/operations as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/missing/operations",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Till session was not found"
+      }
+    },
+    {
+      "id": "POST /v1/till-sessions/missing/close as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/missing/close",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/till-sessions/missing/close as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/missing/close",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: cash:write"
+      }
+    },
+    {
+      "id": "POST /v1/till-sessions/missing/close as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/missing/close",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Till session was not found"
+      }
+    },
+    {
+      "id": "POST /v1/till-sessions/missing/close as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/till-sessions/missing/close",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Till session was not found"
+      }
+    },
+    {
+      "id": "GET /v1/audit-events as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/audit-events",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/audit-events as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/audit-events",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/audit-events as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/audit-events",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/audit-events as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/audit-events",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/alerts as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/alerts",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/alerts as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/alerts",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/alerts as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/alerts",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/alerts as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/alerts",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/compensation/plans as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/plans",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/plans as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/plans",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:read"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/plans as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/plans",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/compensation/plans as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/plans",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "POST /v1/compensation/plans as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/plans",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/plans as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/plans",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:write"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/plans as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/plans",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "id": "<uuid>",
+        "name": "Base",
+        "components": [
+          {
+            "type": "fixed",
+            "key": "base",
+            "label": "Base",
+            "amountMinor": 1000
+          }
+        ],
+        "rules": [],
+        "createdAt": "<timestamp>"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/plans as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/plans",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "id": "<uuid>",
+        "name": "Base",
+        "components": [
+          {
+            "type": "fixed",
+            "key": "base",
+            "label": "Base",
+            "amountMinor": 1000
+          }
+        ],
+        "rules": [],
+        "createdAt": "<timestamp>"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/assignments as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/assignments",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/assignments as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/assignments",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:read"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/assignments as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/assignments",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/compensation/assignments as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/assignments",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "POST /v1/compensation/assignments as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/assignments",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/assignments as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/assignments",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:write"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/assignments as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/assignments",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Performer was not found"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/assignments as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/assignments",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Performer was not found"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/pay-periods as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/pay-periods",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/pay-periods as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/pay-periods",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:read"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/pay-periods as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/pay-periods",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/compensation/pay-periods as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/pay-periods",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:write"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Performer was not found"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Performer was not found"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods/missing/calculate as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods/missing/calculate",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods/missing/calculate as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods/missing/calculate",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:write"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods/missing/calculate as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods/missing/calculate",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Pay period was not found"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods/missing/calculate as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods/missing/calculate",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Pay period was not found"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods/missing/close as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods/missing/close",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods/missing/close as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods/missing/close",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:approve"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods/missing/close as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods/missing/close",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:approve"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/pay-periods/missing/close as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/pay-periods/missing/close",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Pay period was not found"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/items as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/items",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/items as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/items",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:read"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/items as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/items",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/compensation/items as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/items",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/compensation/advances as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/advances",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/advances as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/advances",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:read"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/advances as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/advances",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/compensation/advances as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/advances",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "POST /v1/compensation/advances as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/advances as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:write"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/advances as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Performer was not found"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/advances as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Performer was not found"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/advances/missing/approve as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances/missing/approve",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/advances/missing/approve as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances/missing/approve",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:approve"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/advances/missing/approve as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances/missing/approve",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:approve"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/advances/missing/approve as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances/missing/approve",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Advance was not found"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/advances/missing/reject as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances/missing/reject",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/advances/missing/reject as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances/missing/reject",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:approve"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/advances/missing/reject as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances/missing/reject",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:approve"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/advances/missing/reject as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/advances/missing/reject",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Advance was not found"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/payouts as anonymous",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/payouts",
+        "auth": null,
+        "origin": null,
+        "contentType": null
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/payouts as viewer",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/payouts",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:read"
+      }
+    },
+    {
+      "id": "GET /v1/compensation/payouts as manager",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/payouts",
+        "auth": "manager",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "GET /v1/compensation/payouts as owner",
+      "request": {
+        "method": "GET",
+        "path": "/v1/compensation/payouts",
+        "auth": "owner",
+        "origin": null,
+        "contentType": null
+      },
+      "status": 200,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": []
+    },
+    {
+      "id": "POST /v1/compensation/payouts as anonymous",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/payouts",
+        "auth": null,
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 401,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Authentication is required"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/payouts as viewer",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/payouts",
+        "auth": "viewer",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:approve"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/payouts as manager",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/payouts",
+        "auth": "manager",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 403,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Permission denied: compensation:approve"
+      }
+    },
+    {
+      "id": "POST /v1/compensation/payouts as owner",
+      "request": {
+        "method": "POST",
+        "path": "/v1/compensation/payouts",
+        "auth": "owner",
+        "origin": null,
+        "contentType": "application/json"
+      },
+      "status": 404,
+      "headers": {
+        "content-type": "application/json; charset=utf-8"
+      },
+      "body": {
+        "error": "Pay item was not found"
+      }
+    }
+  ]
+}
