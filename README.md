@@ -206,6 +206,7 @@ All commands run from the repository root.
 | `npm run typecheck` | Type-check every workspace |
 | `npm run lint` | ESLint across the repository |
 | `npm run build` | Build API and web for production |
+| `npm run docs` | Rebuild the three PDFs in `opskit-documentos/` from the sources in `docs-src/` |
 | `npm start -w @opskit/api` | Run the built API (`dist/main.js`) |
 | `npm run contract:baseline -w @opskit/api` | Regenerate the post-migration HTTP contract baseline (review the diff) |
 
@@ -404,13 +405,26 @@ Because the file is ignored, deleting it and re-running `npm run seed` is a safe
 
 ## Project documents
 
-Design material lives in [`opskit-documentos/`](opskit-documentos):
+The operational documents are Spanish-language PDFs in [`opskit-documentos/`](opskit-documentos). That
+directory holds rendered PDFs only.
 
 | Document | Covers |
 | --- | --- |
 | [01 — Módulos y lógica](opskit-documentos/01_OpsKit_Modulos_y_Logica.pdf) | Module inventory and business logic |
 | [02 — Flujos operativos](opskit-documentos/02_OpsKit_Flujos_Operativos.pdf) | Operational flows |
 | [03 — Arquitectura y portabilidad](opskit-documentos/03_OpsKit_Arquitectura_y_Portabilidad.pdf) | Architecture and portability |
+
+Their versioned sources live in [`docs-src/`](docs-src): one HTML file per document, plus `styles.css`
+(the print layout — one A4 sheet per `.page` element) and `build.mjs`.
+
+```bash
+npm run docs                                              # all three documents
+node docs-src/build.mjs --only 01-modulos-y-logica.html   # one document
+```
+
+The build renders each source with headless Chrome or Edge — set `CHROME_PATH` when neither is found —
+and **fails when the PDF page count does not match the number of `.page` elements**, which is how a page
+clipped by the fixed-height sheet gets caught instead of shipping silently.
 
 These documents are written in Spanish. The code, tests, and this README are in English.
 
