@@ -6,7 +6,7 @@
 
 [![Node](https://img.shields.io/badge/Node-%E2%89%A524-5FA04E?logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Fastify](https://img.shields.io/badge/Fastify-5-000000?logo=fastify&logoColor=white)](https://fastify.dev)
+[![Hono](https://img.shields.io/badge/Hono-4-E36002?logo=hono&logoColor=white)](https://hono.dev)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org)
 [![node:sqlite](https://img.shields.io/badge/node%3Asqlite-no%20native%20add--ons-003B57?logo=sqlite&logoColor=white)](https://nodejs.org/api/sqlite.html)
 [![Vitest](https://img.shields.io/badge/tested%20with-Vitest-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev)
@@ -77,19 +77,21 @@ npm run dev:web
 | `packages/sqlite` | Port implementations over `node:sqlite`, migrations, Drizzle query layer | `core` | `drizzle-orm` |
 | `packages/contracts` | Zod HTTP request/response schemas | — | `zod` |
 | `packages/config` | Runtime environment parsing | — | `zod` |
-| `apps/api` | Fastify REST API under `/v1`; the composition root | `core`, `sqlite`, `contracts`, `config` | `fastify`, `@fastify/cookie`, `zod` |
+| `apps/api` | Hono REST API under `/v1`; layered as interface, infrastructure and composition | `core`, `sqlite`, `contracts`, `config` | `hono`, `@hono/node-server`, `zod` |
 | `apps/web` | Next.js UI; reaches the API over HTTP only | `contracts` *(types only)* | `next`, `react`, `react-dom` |
 
 ### Architecture invariants
 
-`packages/core/test/architecture-boundaries.test.ts` scans the real tree and fails the build when any rule below is broken. It also self-tests its own detector against fixtures, so the check cannot silently stop detecting.
+`packages/core/test/architecture-boundaries.test.ts` and `apps/api/test/architecture-boundaries.test.ts` scan the real production tree and fail when any rule below is broken. Both self-test their detectors against negative fixtures, so the checks cannot silently stop detecting.
 
 | Invariant | Rule |
 | --- | --- |
-| Core stays independent | `packages/core/src/**` must not import `@opskit/sqlite`, `fastify`, `next`, `zod`, or `node:sqlite` |
+| Core stays independent | `packages/core/src/**` must not import `@opskit/sqlite`, HTTP frameworks, `next`, `zod`, or `node:sqlite` |
 | Adapters never call into use cases | `packages/sqlite/**` must not import `application` or `use-case` modules |
-| HTTP layer never touches the database | `apps/api/src/**`, except `main.ts` and `seed.ts`, must not import `@opskit/sqlite`, `Sqlite*Repository`, `Sqlite*Adapter`, or `ApiDependencies` |
-| Only the composition root builds adapters | `new Sqlite*` may appear only in `apps/api/src/main.ts` and `apps/api/src/seed.ts` |
+| Hono stays at the HTTP edge | `hono` and `@hono/node-server` may be imported only under `apps/api/src/interface/http/` |
+| HTTP layer never touches the database | `apps/api/src/interface/http/**` must not import `@opskit/sqlite`, `node:crypto`, `node:sqlite`, infrastructure, or composition |
+| Infrastructure stays protocol-free | `apps/api/src/infrastructure/**` must not import HTTP frameworks or `@opskit/contracts` |
+| Only the composition root builds adapters | `new Sqlite*` may appear only in `apps/api/src/composition/` |
 | Web never touches domain or database | `apps/web/**` must not import `@opskit/core` or `@opskit/sqlite` |
 | Drizzle stays in the adapter package | `packages/core/src`, `apps/api/src`, and `apps/web` must not import `drizzle-orm`; `packages/sqlite` is the only importer |
 | Repositories use the query builder | `packages/sqlite/src/{repositories,operations-repositories,compensation-repositories}.ts` must not call `prepare(` or use raw `SELECT` / `INSERT` / `UPDATE` / `DELETE` SQL strings |
@@ -124,7 +126,7 @@ If you need to add a capability, put the rule in `packages/core`, add the port, 
 ```mermaid
 flowchart TB
   web["apps/web — Next.js UI"]
-  api["apps/api — Fastify REST /v1"]
+  api["apps/api — Hono REST /v1"]
   contracts["packages/contracts — zod HTTP schemas"]
   core["packages/core — domain, use cases, ports (zero dependencies)"]
   sqlite["packages/sqlite — node:sqlite adapters, Drizzle query layer"]
@@ -135,7 +137,7 @@ flowchart TB
   api --> contracts
   api --> core
   api --> config
-  api -->|"main.ts and seed.ts only"| sqlite
+  api -->|"composition/ only"| sqlite
   sqlite --> core
 ```
 
@@ -154,7 +156,7 @@ GitHub renders the diagram above in a cross-origin iframe, so it fails to displa
                            v
 +-----------------------------------------------------+
 |                       apps/api                      |
-|       Fastify REST /v1 - the composition root       |
+|  Hono REST /v1 - interface, infra and composition   |
 +-----------------------------------------------------+
                            |
        imports contracts, config, core and sqlite
@@ -180,7 +182,14 @@ Dependencies point inward. `packages/core` imports nothing from the other worksp
 - `packages/sqlite` implements the ports with Node 24's built-in `node:sqlite` and applies local migrations. This avoids native add-ons, is compatible with the declared Node 24 runtime, and keeps the template dependency-light.
 - `packages/contracts` owns HTTP request schemas shared by the API and the web app.
 - `packages/config` parses runtime environment configuration.
-- `apps/api` is a thin Fastify REST API under `/v1`. It accepts Bearer sessions and secure HTTP-only cookie sessions; cross-origin cookie mutations are rejected.
+- `apps/api` is a Hono REST API under `/v1`, served on Node by `@hono/node-server`:
+  - `src/interface/http/` holds Hono routes, controllers, middleware (origin, authentication, authorization, body), presenters and the Node listener. It depends only on the `ApplicationPort`.
+  - `src/infrastructure/` holds the Node clock, UUID generator and scrypt password hasher.
+  - `src/composition/` is the only place that builds SQLite adapters, the application facade and the HTTP app.
+  - `src/main.ts` only binds `API_HOST`/`API_PORT` and handles graceful shutdown: on `SIGTERM` or `SIGINT` it stops accepting connections, releases idle keep-alive sockets, closes the database and exits; it forces exit after 10 seconds.
+  - It accepts Bearer sessions and HTTP-only `SameSite=Lax` cookie sessions; cookie-authenticated mutations are accepted only from `ALLOWED_ORIGINS`.
+  - Request bodies are limited to 1 MiB (1,048,576 bytes); larger bodies, malformed JSON and unsupported media types answer `500` before authentication. Route parameters longer than 100 characters answer `414`. Unknown paths and unsupported methods answer `404` (there is no `405`).
+  - `POST /v1/auth/logout` reads no body, so it accepts an empty body even when `Content-Type: application/json` is sent. Routes that require a body still answer `500` to an empty JSON body.
 - `apps/web` is a minimal Next.js UI that talks only to the REST API proxy. It never imports SQLite.
 
 ## Commands
@@ -198,6 +207,7 @@ All commands run from the repository root.
 | `npm run lint` | ESLint across the repository |
 | `npm run build` | Build API and web for production |
 | `npm start -w @opskit/api` | Run the built API (`dist/main.js`) |
+| `npm run contract:baseline -w @opskit/api` | Regenerate the post-migration HTTP contract baseline (review the diff) |
 
 ## Configuration
 
@@ -219,7 +229,15 @@ Every variable is optional: `packages/config` declares defaults with Zod and par
 
 ## API overview
 
-40 routes, all defined in `apps/api/src/app.ts` and `apps/api/src/compensation-routes.ts`. The permission column is the string passed to the auth guard; see the [permission model](#permission-model).
+40 routes, declared in `apps/api/src/interface/http/controllers/` and mounted by `apps/api/src/interface/http/routes/index.ts`. The permission column is the string passed to the auth guard; see the [permission model](#permission-model).
+
+### Contract evidence
+
+`apps/api/test/post-migration-http-contract-baseline.json` is a versioned **post-migration Hono baseline**: status, selected headers, cookies and normalized body for every route as anonymous, viewer, manager and owner, plus CORS, CSRF/origin, Bearer, cookie, body-limit, parameter-limit, 404 and logout cases. `apps/api/test/post-migration-contract-baseline.test.ts` fails if current behavior drifts from it. Regenerate it intentionally with `npm run contract:baseline -w @opskit/api` and review the diff.
+
+This baseline is **not** proof of historical parity with the previous Fastify adapter. The current checkout no longer contains a runnable Fastify adapter or a recorded Fastify contract artifact, so that equivalence cannot be demonstrated from this repository.
+
+Known deliberate difference: the browser client previously sent `Content-Type: application/json` on body-less logout, which the API answered with `500`. The client now omits the content type when there is no body, and logout tolerates that header with an empty body.
 
 <details>
 <summary><b>Routes</b></summary>
