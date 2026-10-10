@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>OpsKit — Módulos y lógica</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Módulos y lógica</div>
+      </header>
+
+      <div class="eyebrow">Documento 01</div>
+      <h1>Módulos y lógica</h1>
+      <div class="cover-rule"></div>
+      <p class="lead">
+        Guía funcional de OpsKit: qué hace cada módulo, dónde vive cada decisión y qué política de la
+        organización habilita la operación. Describe el comportamiento que el sistema expone hoy.
+      </p>
+
+      <div class="fact-grid">
+        <dl class="fact">
+          <dt>Propósito</dt>
+          <dd>Explicar el reparto de responsabilidades entre los nueve módulos y las reglas que los gobiernan.</dd>
+        </dl>
+        <dl class="fact">
+          <dt>Principio</dt>
+          <dd>La factura, el pago y el movimiento de caja son registros distintos y no se sustituyen entre sí.</dd>
+        </dl>
+        <dl class="fact">
+          <dt>Audiencia</dt>
+          <dd>Operación, supervisión y administración de políticas de la organización.</dd>
+        </dl>
+        <dl class="fact">
+          <dt>Alcance</dt>
+          <dd>Solo lo confirmado por el código y la configuración vigente; no se documentan capacidades sin endpoint.</dd>
+        </dl>
+      </div>
+
+      <h2 class="section-title">Nueve módulos, nueve claves</h2>
+      <p class="section-note">Las claves de módulo forman un conjunto cerrado; Settings las habilita una por una.</p>
+      <div class="tag-row">
+        <span class="tag mono">dashboard</span>
+        <span class="tag mono">settings</span>
+        <span class="tag mono">inventory</span>
+        <span class="tag mono">invoicing</span>
+        <span class="tag mono">cash</span>
+        <span class="tag mono">people</span>
+        <span class="tag mono">offerings</span>
+        <span class="tag mono">audit</span>
+        <span class="tag mono">compensation</span>
+      </div>
+
+      <div class="callout note">
+        <h4>Cómo leer este documento</h4>
+        <p>
+          La página 2 presenta el mapa de módulos. La página 3 detalla responsabilidades y controles
+          concretos. La página 4 describe las políticas activas de <span class="mono">Settings</span>.
+        </p>
+      </div>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 1</span>
+      </footer>
+    </section>
+
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Módulos y lógica</div>
+      </header>
+
+      <h2 class="section-title">Mapa de módulos</h2>
+      <p class="section-note">
+        Cada módulo conserva su responsabilidad. Los nueve exponen rutas propias bajo
+        <span class="mono">/v1</span>; <span class="mono">settings</span> gobierna además las
+        políticas de todos los demás.
+      </p>
+
+      <div class="card-grid">
+        <div class="card accent">
+          <h3><span class="mono">dashboard</span></h3>
+          <p>Lectura de conjunto de la operación mediante <span class="mono">GET /v1/dashboard</span>.</p>
+        </div>
+        <div class="card accent">
+          <h3><span class="mono">settings</span></h3>
+          <p>Políticas de la organización: moneda, métodos de pago, módulos habilitados y permisos por rol.</p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3><span class="mono">inventory</span></h3>
+          <p>Productos y movimientos de stock: <span class="mono">/v1/products</span> y
+            <span class="mono">/v1/products/:id/movements</span>.</p>
+        </div>
+        <div class="card">
+          <h3><span class="mono">invoicing</span></h3>
+          <p>Facturas y pagos: <span class="mono">/v1/invoices</span> y
+            <span class="mono">/v1/invoices/:id/payments</span>.</p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3><span class="mono">cash</span></h3>
+          <p>Cajas y sesiones: <span class="mono">/v1/tills</span>, <span class="mono">/v1/till-sessions</span>
+            y las operaciones <span class="mono">open</span>, <span class="mono">operations</span> y
+            <span class="mono">close</span>.</p>
+        </div>
+        <div class="card">
+          <h3><span class="mono">people</span></h3>
+          <p>Personas de la organización mediante <span class="mono">/v1/people</span>.</p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3><span class="mono">offerings</span></h3>
+          <p>Catálogo de ofertas mediante <span class="mono">/v1/offerings</span>.</p>
+        </div>
+        <div class="card">
+          <h3><span class="mono">audit</span></h3>
+          <p>Eventos y alertas: <span class="mono">/v1/audit-events</span> y <span class="mono">/v1/alerts</span>,
+            ambos bajo <span class="mono">audit:read</span>.</p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div class="card teal">
+          <h3><span class="mono">compensation</span></h3>
+          <p>Planes, asignaciones, períodos, anticipos y payouts bajo <span class="mono">/v1/compensation/*</span>.</p>
+        </div>
+        <div class="card teal">
+          <h3>Módulo y permiso</h3>
+          <p>Cada permiso pertenece a un módulo. Un permiso sin su módulo habilitado no concede acceso.</p>
+        </div>
+      </div>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 2</span>
+      </footer>
+    </section>
+
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Módulos y lógica</div>
+      </header>
+
+      <h2 class="section-title">Responsabilidades concretas</h2>
+      <p class="section-note">
+        Cada módulo tiene una responsabilidad acotada y un control operativo que lo delimita.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Módulo</th><th>Responsabilidad</th><th>Control operativo</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Acceso</td>
+            <td>Crear y destruir la sesión del usuario.</td>
+            <td>El logout elimina la sesión persistida y la cookie.</td>
+          </tr>
+          <tr>
+            <td>Caja</td>
+            <td>Custodiar el efectivo de una sesión de caja.</td>
+            <td>Una sesión cerrada no se reabre ni admite movimientos.</td>
+          </tr>
+          <tr>
+            <td>Inventario</td>
+            <td>Mantener el saldo de stock de cada producto.</td>
+            <td>Puede impedir saldo negativo según la política activa.</td>
+          </tr>
+          <tr>
+            <td>Facturas</td>
+            <td>Reflejar el saldo por cobrar de cada venta.</td>
+            <td>Permanece <span class="mono">open</span> hasta completar el pago; luego pasa a <span class="mono">paid</span>.</td>
+          </tr>
+          <tr>
+            <td>Compensación</td>
+            <td>Liquidar el período de pago de una persona.</td>
+            <td>Solo un período <span class="mono">calculated</span> puede cerrarse.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout rule">
+        <h4>Pago no es caja</h4>
+        <p>
+          Registrar un pago de factura no crea automáticamente una operación de caja. El efectivo se
+          ingresa con un movimiento de caja explícito.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <h4><span class="mono">adjustment</span> fija el saldo</h4>
+        <p>
+          El ajuste de inventario no suma ni resta sobre el saldo actual: establece el saldo final en el
+          valor indicado.
+        </p>
+      </div>
+
+      <div class="callout note">
+        <h4>Parcialidad y estado <span class="mono">open</span></h4>
+        <p>
+          Cuando la política permite pagos parciales, la factura conserva el estado <span class="mono">open</span>
+          hasta que la suma de pagos iguala el total.
+        </p>
+      </div>
+
+      <div class="callout warn">
+        <h4>Cerrar es inmovilizar</h4>
+        <p>
+          Cerrada una sesión de caja, o cerrado un período de pago, ese registro deja de admitir cambios.
+        </p>
+      </div>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 3</span>
+      </footer>
+    </section>
+
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Módulos y lógica</div>
+      </header>
+
+      <h2 class="section-title">Settings: políticas activas</h2>
+      <p class="section-note">
+        La configuración permanece habilitada porque determina cómo se ejecuta la operación. Cada cambio
+        debe ser deliberado y trazable.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Política</th><th>Efecto sobre la operación</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Módulos y permisos</td>
+            <td>Define las superficies disponibles y quién puede operar cada una.</td>
+          </tr>
+          <tr>
+            <td>Moneda y métodos de pago</td>
+            <td>Fija <span class="mono">currency.code</span> y <span class="mono">minorUnits</span>, y normaliza
+              el registro de cobros con <span class="mono">requiresReference</span> y <span class="mono">feeBasisPoints</span>.</td>
+          </tr>
+          <tr>
+            <td>Inventario negativo</td>
+            <td><span class="mono">allowNegativeStock</span> permite o bloquea que un movimiento deje el saldo
+              bajo cero; <span class="mono">defaultLowStockThreshold</span> fija el umbral por defecto.</td>
+          </tr>
+          <tr>
+            <td>Pagos parciales</td>
+            <td><span class="mono">allowPartialPayments</span> decide si una factura puede conservarse
+              <span class="mono">open</span> con pagos parciales.</td>
+          </tr>
+          <tr>
+            <td>Compensación y anticipos</td>
+            <td>Define redondeo, comisión inmediata, límites de anticipo, política de saldo pendiente y
+              si el payout admite parcialidad.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout rule">
+        <h4>Permiso más módulo</h4>
+        <p>
+          Un permiso no concede nada por sí solo. El módulo dueño del permiso también debe estar habilitado
+          en la política de la organización.
+        </p>
+      </div>
+
+      <h2 class="section-title">Cuatro roles, dieciocho permisos</h2>
+      <p class="section-note">
+        El rol reparte permisos; habilitar el módulo sigue siendo un requisito independiente.
+      </p>
+      <div class="tag-row">
+        <span class="tag mono">owner</span>
+        <span class="tag mono">manager</span>
+        <span class="tag mono">staff</span>
+        <span class="tag mono">viewer</span>
+        <span class="tag">18 permisos</span>
+      </div>
+
+      <dl class="kv">
+        <dt>Por defecto</dt>
+        <dd>Solo <span class="mono">owner</span> puede aprobar compensación.</dd>
+        <dt>Compatibilidad</dt>
+        <dd>La configuración guardada por una versión anterior carga con el módulo de compensación deshabilitado y políticas seguras.</dd>
+      </dl>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 4</span>
+      </footer>
+    </section>
+  </body>
+</html>

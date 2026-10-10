@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>OpsKit — Arquitectura y portabilidad</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Arquitectura y portabilidad</div>
+      </header>
+
+      <div class="eyebrow">Documento 03</div>
+      <h1>Arquitectura y portabilidad</h1>
+      <div class="cover-rule"></div>
+      <p class="lead">
+        Estructura del sistema para preservar las reglas de negocio, aislar la infraestructura y planear un
+        cambio de almacenamiento sin falsos supuestos.
+      </p>
+
+      <div class="fact-grid">
+        <dl class="fact">
+          <dt>Dirección</dt>
+          <dd>Web → API → Core → Ports → SQLite/Drizzle: las dependencias apuntan hacia adentro.</dd>
+        </dl>
+        <dl class="fact">
+          <dt>Autoridad</dt>
+          <dd>El Core decide; la base de datos protege los invariantes físicos.</dd>
+        </dl>
+        <dl class="fact">
+          <dt>Beneficio</dt>
+          <dd>Cambiar el almacenamiento no debe reescribir las reglas operativas.</dd>
+        </dl>
+        <dl class="fact">
+          <dt>Límite</dt>
+          <dd>NoSQL no es un reemplazo mecánico: exige modelo y consultas propios.</dd>
+        </dl>
+      </div>
+
+      <h2 class="section-title">Seis workspaces</h2>
+      <p class="section-note">Cada workspace tiene una responsabilidad acotada y dependencias declaradas.</p>
+      <div class="tag-row">
+        <span class="tag mono">packages/core</span>
+        <span class="tag mono">packages/sqlite</span>
+        <span class="tag mono">packages/contracts</span>
+        <span class="tag mono">packages/config</span>
+        <span class="tag mono">apps/api</span>
+        <span class="tag mono">apps/web</span>
+      </div>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 1</span>
+      </footer>
+    </section>
+
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Arquitectura y portabilidad</div>
+      </header>
+
+      <h2 class="section-title">Arquitectura en capas</h2>
+      <p class="section-note">
+        La Web presenta la operación; la API expone la entrada; el Core aplica casos de uso y políticas;
+        los Ports definen contratos; SQLite/Drizzle implementa la persistencia.
+      </p>
+
+      <div class="card-grid">
+        <div class="card accent">
+          <h3>Web</h3>
+          <p>
+            <span class="mono">apps/web</span> es una interfaz Next.js que llega a la API solo por HTTP y
+            nunca importa el core ni SQLite.
+          </p>
+        </div>
+        <div class="card accent">
+          <h3>API</h3>
+          <p>
+            <span class="mono">apps/api</span> sirve Hono REST bajo <span class="mono">/v1</span> con
+            <span class="mono">@hono/node-server</span>, dividido en interface, infrastructure y composition.
+          </p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3>Core</h3>
+          <p>
+            Decide reglas, estados y transiciones, permisos y cierres. No tiene dependencias en tiempo de
+            ejecución.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Ports</h3>
+          <p>
+            Aíslan los contratos de repositorios y transacciones entre las decisiones del core y el motor
+            de datos.
+          </p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div class="card teal">
+          <h3>SQLite / Drizzle</h3>
+          <p>
+            Implementa los Ports sobre <span class="mono">node:sqlite</span>; las migraciones son SQL escrito
+            a mano y Drizzle es solo la capa de consulta tipada.
+          </p>
+        </div>
+        <div class="card teal">
+          <h3>Settings</h3>
+          <p>
+            Configura las políticas sin convertir la interfaz ni la base de datos en fuente de verdad.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout rule">
+        <h4>Invariantes verificados por pruebas</h4>
+        <ul>
+          <li>El core no importa adaptadores ni frameworks HTTP.</li>
+          <li>Los adaptadores nunca llaman a los casos de uso.</li>
+          <li><span class="mono">hono</span> se importa solo bajo <span class="mono">apps/api/src/interface/http/</span>.</li>
+          <li>La capa HTTP nunca importa la base de datos, la infraestructura ni la composición.</li>
+          <li>Solo la raíz de composición construye adaptadores SQLite.</li>
+          <li><span class="mono">apps/web</span> nunca importa <span class="mono">@opskit/core</span> ni <span class="mono">@opskit/sqlite</span>.</li>
+          <li><span class="mono">drizzle-orm</span> solo lo importa <span class="mono">packages/sqlite</span>.</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <h4>Verificación real</h4>
+        <p>
+          Estas reglas las comprueban pruebas que analizan el árbol de producción y además prueban sus
+          propios detectores, de modo que no pueden dejar de detectar en silencio.
+        </p>
+      </div>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 2</span>
+      </footer>
+    </section>
+
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Arquitectura y portabilidad</div>
+      </header>
+
+      <h2 class="section-title">Quién decide y quién protege</h2>
+      <p class="section-note">
+        La decisión y la protección viven en capas distintas, y el borde solo transporta la solicitud.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Capa</th><th>Responsabilidad</th><th>Ejemplo</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Core</td>
+            <td>Decisión de negocio</td>
+            <td>Solo un período <span class="mono">calculated</span> puede cerrarse.</td>
+          </tr>
+          <tr>
+            <td>Port</td>
+            <td>Contrato intercambiable</td>
+            <td>Repositorio de facturas o de caja.</td>
+          </tr>
+          <tr>
+            <td>SQLite / Drizzle</td>
+            <td>Persistencia y protección</td>
+            <td>Restricciones, claves foráneas, índices y triggers.</td>
+          </tr>
+          <tr>
+            <td>Web y API</td>
+            <td>Experiencia y borde</td>
+            <td>Validar la solicitud y presentar el error.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout rule">
+        <h4>Regla de diseño</h4>
+        <p>
+          La base de datos no reemplaza los casos de uso. Sus restricciones son un respaldo físico; el Core
+          conserva la decisión y el orden de las transiciones.
+        </p>
+      </div>
+
+      <h2 class="section-title">Portabilidad real</h2>
+      <p class="section-note">Cuatro reglas que sostienen un cambio de motor sin degradarlo.</p>
+
+      <div class="card-grid">
+        <div class="card accent">
+          <h3>No copiar SQL</h3>
+          <p>
+            Un motor nuevo requiere un adaptador que implemente los Ports, no SQL trasladado a ciegas.
+          </p>
+        </div>
+        <div class="card accent">
+          <h3>No omitir migraciones</h3>
+          <p>
+            El cambio debe incluir migración, validación de datos y un plan de reversa.
+          </p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div class="card teal">
+          <h3>No ignorar concurrencia</h3>
+          <p>
+            Aislamiento, bloqueos, transacciones e idempotencia cambian de un motor a otro.
+          </p>
+        </div>
+        <div class="card teal">
+          <h3>NoSQL con modelo propio</h3>
+          <p>
+            Documentos, claves y patrones de consulta se diseñan según el acceso, no como tablas
+            disfrazadas.
+          </p>
+        </div>
+      </div>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 3</span>
+      </footer>
+    </section>
+
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Arquitectura y portabilidad</div>
+      </header>
+
+      <h2 class="section-title">Cambio de base de datos: plan mínimo</h2>
+      <p class="section-note">
+        Cinco frentes que deben resolverse juntos; ninguno sustituye a los otros.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Frente</th><th>Acción concreta</th><th>Riesgo que reduce</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Contrato</td>
+            <td>Implementar el adaptador de Ports</td>
+            <td>Dependencia del motor dentro del Core.</td>
+          </tr>
+          <tr>
+            <td>Datos</td>
+            <td>Diseñar y ejecutar migraciones verificables</td>
+            <td>Pérdida de datos, tipos inconsistentes o saldos erróneos.</td>
+          </tr>
+          <tr>
+            <td>Concurrencia</td>
+            <td>Revisar unidad de trabajo, transacciones, bloqueo e idempotencia</td>
+            <td>Doble cobro, cierre simultáneo o condiciones de carrera.</td>
+          </tr>
+          <tr>
+            <td>Consultas</td>
+            <td>Medir índices y patrones de lectura y escritura</td>
+            <td>Regresión de rendimiento.</td>
+          </tr>
+          <tr>
+            <td>Operación</td>
+            <td>Respaldos, observabilidad y reversa</td>
+            <td>Recuperación incompleta ante un fallo.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <dl class="kv">
+        <dt>Migraciones actuales</dt>
+        <dd>De 001 a 008, en SQL escrito a mano; Drizzle nunca las genera ni las aplica.</dd>
+        <dt>Integridad</dt>
+        <dd>Esquema, claves foráneas, checks, índices y triggers escritos a mano son la autoridad física.</dd>
+        <dt>Apertura</dt>
+        <dd>La base abre con <span class="mono">journal_mode=WAL</span> y <span class="mono">foreign_keys=ON</span>.</dd>
+      </dl>
+
+      <div class="callout note">
+        <h4>Checksums de migración</h4>
+        <p>
+          Cada migración tiene contenido canónico explícito y su checksum se guarda como
+          <span class="mono">v2:&lt;sha256&gt;</span>. Un valor <span class="mono">v2:</span> que no
+          coincide siempre falla; nunca se sobrescribe en silencio.
+        </p>
+      </div>
+
+      <div class="callout rule">
+        <h4>Criterio de salida</h4>
+        <p>
+          El cambio es aceptable cuando conserva las reglas del Core, pasa las migraciones y las pruebas de
+          concurrencia, y demuestra que caja, facturación, inventario y compensación mantienen su
+          trazabilidad.
+        </p>
+      </div>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 4</span>
+      </footer>
+    </section>
+  </body>
+</html>

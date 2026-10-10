@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>OpsKit — Flujos operativos</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Flujos operativos</div>
+      </header>
+
+      <div class="eyebrow">Documento 02</div>
+      <h1>Flujos operativos</h1>
+      <div class="cover-rule"></div>
+      <p class="lead">
+        Secuencia canónica de la operación: acceso, caja, facturación, inventario y compensación. El
+        orden importa porque cada control depende del anterior.
+      </p>
+
+      <div class="fact-grid">
+        <dl class="fact">
+          <dt>Regla de orden</dt>
+          <dd>La caja se habilita y se abre antes de facturar y cobrar.</dd>
+        </dl>
+        <dl class="fact">
+          <dt>Regla de efectivo</dt>
+          <dd>El pago no crea caja automática: el efectivo se ingresa con un movimiento manual.</dd>
+        </dl>
+        <dl class="fact">
+          <dt>Regla de cierre</dt>
+          <dd>Caja y períodos cerrados no se reabren ni se modifican.</dd>
+        </dl>
+        <dl class="fact">
+          <dt>Regla de política</dt>
+          <dd>Settings determina parcialidad, saldo negativo, anticipos y compensación.</dd>
+        </dl>
+      </div>
+
+      <div class="callout note">
+        <h4>Alcance</h4>
+        <p>
+          Se describe la secuencia que el sistema expone hoy. No se presentan como capacidad los pasos
+          que no tienen endpoint disponible.
+        </p>
+      </div>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 1</span>
+      </footer>
+    </section>
+
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Flujos operativos</div>
+      </header>
+
+      <h2 class="section-title">1. Acceso y sesión</h2>
+      <p class="section-note">
+        El login válido crea la sesión. La sesión se transporta mediante token Bearer o cookie
+        HTTP-only, y el logout elimina la sesión persistida y la cookie.
+      </p>
+
+      <div class="callout warn">
+        <h4>Borde HTTP</h4>
+        <p>
+          Las mutaciones autenticadas por cookie solo se aceptan desde
+          <span class="mono">ALLOWED_ORIGINS</span>. Los cuerpos de solicitud están limitados a 1 MiB y
+          un parámetro de ruta de más de 100 caracteres responde <span class="mono">414</span>.
+        </p>
+      </div>
+
+      <h2 class="section-title">2. Operación diaria: orden</h2>
+      <p class="section-note">
+        Antes de crear una factura, la caja debe estar habilitada y la sesión de caja abierta con monto
+        inicial. Este orden es el que permite conciliar el efectivo físico al final.
+      </p>
+
+      <ol class="steps">
+        <li class="step">
+          <span class="badge">1</span>
+          <div>
+            <h4>Habilitar caja</h4>
+            <p>El módulo <span class="mono">cash</span> debe estar habilitado en Settings y la caja debe existir y estar habilitada.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="badge">2</span>
+          <div>
+            <h4>Abrir sesión con monto inicial</h4>
+            <p><span class="mono">POST /v1/till-sessions/open</span> registra el monto inicial de la sesión.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="badge">3</span>
+          <div>
+            <h4>Facturar y cobrar</h4>
+            <p><span class="mono">POST /v1/invoices</span> crea la factura; <span class="mono">POST /v1/invoices/:id/payments</span> registra el cobro, sin mover la caja.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="badge">4</span>
+          <div>
+            <h4>Ingresar el efectivo manualmente</h4>
+            <p>Si el cobro fue en efectivo, se registra un movimiento <span class="mono">in</span> con <span class="mono">POST /v1/till-sessions/:id/operations</span>.</p>
+          </div>
+        </li>
+        <li class="step">
+          <span class="badge">5</span>
+          <div>
+            <h4>Contar y cerrar</h4>
+            <p><span class="mono">POST /v1/till-sessions/:id/close</span> registra el monto declarado y deja la sesión <span class="mono">closed</span>.</p>
+          </div>
+        </li>
+      </ol>
+
+      <table>
+        <thead>
+          <tr><th>Paso</th><th>Resultado</th><th>Control</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Habilitar caja</td><td>Caja disponible</td><td>Requiere módulo y permiso de escritura.</td></tr>
+          <tr><td>Abrir sesión</td><td>Monto inicial registrado</td><td>La sesión queda abierta para movimientos.</td></tr>
+          <tr><td>Facturar y cobrar</td><td>Factura y pago registrados</td><td>El pago no equivale a un movimiento de caja.</td></tr>
+          <tr><td>Efectivo</td><td>Ingreso de caja registrado</td><td>Solo si el cobro fue en efectivo.</td></tr>
+          <tr><td>Contar y cerrar</td><td>Conciliación final</td><td>Sesión cerrada: sin reapertura ni movimientos.</td></tr>
+        </tbody>
+      </table>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 2</span>
+      </footer>
+    </section>
+
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Flujos operativos</div>
+      </header>
+
+      <h2 class="section-title">3. Compensación y anticipos</h2>
+      <p class="section-note">
+        La liquidación es una secuencia aparte de la caja: el cobro no adelanta el cálculo del período.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Etapa</th><th>Estado o condición</th><th>Resultado</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Persona y plan</td>
+            <td>Configuración previa</td>
+            <td>Base de atribución de las ventas de la persona.</td>
+          </tr>
+          <tr>
+            <td>Período</td>
+            <td><span class="mono">draft</span></td>
+            <td>Recibe las ventas y facturas atribuidas.</td>
+          </tr>
+          <tr>
+            <td>Anticipos</td>
+            <td><span class="mono">requested</span> → <span class="mono">approved</span> | <span class="mono">rejected</span></td>
+            <td>Solo mientras el período que contiene hoy esté abierto.</td>
+          </tr>
+          <tr>
+            <td>Calcular</td>
+            <td><span class="mono">draft</span> | <span class="mono">calculated</span> → <span class="mono">calculated</span></td>
+            <td>Recalcular está permitido hasta el cierre y deja el período liquidable.</td>
+          </tr>
+          <tr>
+            <td>Cerrar y payout</td>
+            <td>Solo <span class="mono">calculated</span> → <span class="mono">closed</span></td>
+            <td>El payout es total o parcial según la política, y solo después del cierre.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout rule">
+        <h4>Efectivo explícito</h4>
+        <p>
+          Un cobro en efectivo exige un movimiento de caja antes del conteo y el cierre. Sin ese
+          movimiento, el monto esperado de la sesión no refleja el efectivo recibido.
+        </p>
+      </div>
+
+      <dl class="kv">
+        <dt>Planes</dt>
+        <dd>Combinan componentes <span class="mono">fixed</span> y <span class="mono">percentage</span> sobre base <span class="mono">gross</span> o <span class="mono">net</span>.</dd>
+        <dt>Atribución</dt>
+        <dd>Con <span class="mono">immediateCommission</span> habilitado, la comisión se fija al momento de la venta y no se recalcula al cierre.</dd>
+        <dt>Redondeo</dt>
+        <dd>Modo <span class="mono">halfUp</span>, <span class="mono">halfEven</span>, <span class="mono">down</span> o <span class="mono">up</span>, al incremento <span class="mono">minor</span> o <span class="mono">major</span>.</dd>
+      </dl>
+
+      <div class="callout note">
+        <h4>Cierre e idempotencia</h4>
+        <p>
+          Un período <span class="mono">closed</span>, sus ítems y sus deducciones quedan inmutables. Las
+          deducciones nunca dejan el pago neto en negativo y el payout rechaza el sobrepago; una clave de
+          idempotencia hace seguros los reintentos.
+        </p>
+      </div>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 3</span>
+      </footer>
+    </section>
+
+    <section class="page">
+      <header class="page-header">
+        <div class="brand">OpsKit <span>| Documentación operativa</span></div>
+        <div class="doc-ref">Flujos operativos</div>
+      </header>
+
+      <h2 class="section-title">Reglas por flujo</h2>
+      <p class="section-note">
+        Cada flujo conserva una regla propia que no depende de los demás módulos.
+      </p>
+
+      <div class="card-grid">
+        <div class="card accent">
+          <h3>Inventario</h3>
+          <p>
+            <span class="mono">in</span> suma, <span class="mono">out</span> resta y
+            <span class="mono">adjustment</span> fija exactamente el saldo indicado. Puede bloquear el
+            saldo negativo según Settings.
+          </p>
+        </div>
+        <div class="card accent">
+          <h3>Facturas</h3>
+          <p>
+            Crear una factura la deja <span class="mono">open</span>. Con parcialidad habilitada, los pagos
+            parciales conservan <span class="mono">open</span>; el pago total pasa a <span class="mono">paid</span>.
+          </p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div class="card teal">
+          <h3>Comisión</h3>
+          <p>
+            La base de ventas atribuidas excluye las facturas en estado <span class="mono">void</span> y no
+            exige que estén <span class="mono">paid</span>.
+          </p>
+        </div>
+        <div class="card teal">
+          <h3>Cierre</h3>
+          <p>
+            La caja cerrada y el período <span class="mono">closed</span> quedan inmutables. El payout ocurre
+            exclusivamente después del cierre.
+          </p>
+        </div>
+      </div>
+
+      <h2 class="section-title">Controles compactos</h2>
+      <p class="section-note">Qué valida cada control y en qué momento actúa.</p>
+
+      <table>
+        <thead>
+          <tr><th>Control</th><th>Qué valida</th><th>Momento</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Sesión</td><td>Credenciales y transporte de sesión.</td><td>Login y logout</td></tr>
+          <tr><td>Caja</td><td>Ingreso explícito para el efectivo.</td><td>Antes de conciliar</td></tr>
+          <tr><td>Saldo</td><td>No negativo si la política lo impide.</td><td>Movimiento de inventario</td></tr>
+          <tr><td>Período</td><td>Solo <span class="mono">calculated</span> permite el cierre.</td><td>Antes del payout</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <h4>Nota de alcance</h4>
+        <p>
+          La anulación no se documenta como flujo operativo. El estado <span class="mono">void</span> existe
+          en el tipo del dominio, pero ningún endpoint expone la anulación.
+        </p>
+      </div>
+
+      <footer class="page-footer">
+        <span>OpsKit | Documentación operativa</span>
+        <span>Página 4</span>
+      </footer>
+    </section>
+  </body>
+</html>
