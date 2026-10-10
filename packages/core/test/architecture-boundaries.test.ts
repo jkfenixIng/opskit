@@ -14,7 +14,7 @@ const importsOf = (directory: string): SourceFile[] => sourceFiles(directory).ma
 const matches = (files: SourceFile[], predicate: (file: SourceFile) => boolean) => files.filter(predicate).map(({ file }) => file);
 const importsApplicationModule = (source: string) => /from\s+['"][^'"]*(?:\/application|\/[^'"]*use-cases?)(?:\.js)?['"]/.test(source);
 const importsInfrastructure = (source: string) => /from\s+['"]@opskit\/sqlite(?:['/])|import(?:\s+type)?\s+[^;]*(?:Sqlite\w+(?:Repository|Adapter)|ApiDependencies)/s.test(source);
-const isAdapterCompositionEntryPoint = (file: string) => file === 'apps/api/src/main.ts' || file === 'apps/api/src/seed.ts';
+const isAdapterCompositionEntryPoint = (file: string) => file === 'apps/api/src/composition/factory.ts' || file === 'apps/api/src/composition/seed.ts';
 const instantiatesConcreteAdapter = (source: string) => /new\s+Sqlite\w+/.test(source);
 const hasSqliteRepositoryRegression = (source: string) => /\brandomUUID\b|\bnew\s+Date\b|COUNT\s*\(\s*\*\s*\)\s*\+\s*1|\.padStart\s*\(|`[^`]*\bINV[-_]/i.test(source.replace(/^\s*\/\/.*$/gm, '').replace(/`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"/g, ''));
 const importsDrizzle = (source: string) => /from\s+['"]drizzle-orm(?:\/[^'"]*)?['"]/.test(source);
@@ -57,10 +57,10 @@ describe('architecture boundary detector', () => {
     expect(result.repositorySqlCrud).toEqual(['packages/sqlite/src/operations-repositories.ts', 'packages/sqlite/src/repositories.ts']);
   });
 
-  it('allows concrete adapters only in main and seed entry points', () => {
+  it('allows concrete adapters only in the composition root', () => {
     const result = violations([
-      fixture('apps/api/src/main.ts', 'const repository = new SqliteInvoiceRepository(db);'),
-      fixture('apps/api/src/seed.ts', 'const repository = new SqliteInvoiceRepository(db);'),
+      fixture('apps/api/src/composition/factory.ts', "import { SqliteInvoiceRepository } from '@opskit/sqlite'; const repository = new SqliteInvoiceRepository(db);"),
+      fixture('apps/api/src/composition/seed.ts', "import { SqliteInvoiceRepository } from '@opskit/sqlite'; const repository = new SqliteInvoiceRepository(db);"),
     ]);
 
     expect(result.httpInfrastructureImports).toEqual([]);
@@ -73,7 +73,7 @@ describe('architecture boundaries', () => {
 
   it('keeps core independent from infrastructure and frameworks', () => {
     for (const file of files.filter(({ file }) => file.startsWith('packages/core/src/'))) {
-      expect(file.source, file.file).not.toMatch(/from ['"](?:@opskit\/sqlite|fastify|next|zod|node:sqlite)['"]/);
+      expect(file.source, file.file).not.toMatch(/from ['"](?:@opskit\/sqlite|fastify|hono|next|zod|node:sqlite)['"]/);
     }
   });
 
@@ -83,7 +83,7 @@ describe('architecture boundaries', () => {
     expect(result.httpInfrastructureImports, 'HTTP code, including seed entry points, must not import SQLite adapters or service locators').toEqual([]);
     expect(result.sqliteRepositoryRegressions, 'SQLite repositories must reserve persistence values only').toEqual([]);
     expect(result.webCoreOrSqliteImports, 'Web must reach core and SQLite only through HTTP contracts').toEqual([]);
-     expect(result.adapterInstantiationOutsideEntryPoints, 'Only main and seed may instantiate concrete adapters').toEqual([]);
+     expect(result.adapterInstantiationOutsideEntryPoints, 'Only the composition root may instantiate concrete adapters').toEqual([]);
     expect(result.drizzleOutsideSqlite, 'Only the SQLite adapter may import Drizzle').toEqual([]);
     expect(result.repositorySqlCrud, 'SQLite repositories must use the Drizzle query builder').toEqual([]);
   });

@@ -2,10 +2,11 @@ import {
   AssignCompensationPlan, AttributeInvoiceToPerformers, AuthenticateUser, CalculatePayPeriod, ClosePayPeriod, CloseTillSession, CreateCompensationPlan, CreateInvoice, CreateOffering, CreatePayPeriod, CreatePerson, CreateProduct, CreateTill, DecideAdvance, EndSession, GetDashboard, GetSessionUser, InvoiceQueries, ListAlerts, MoveStock, OpenTillSession, OperationsQueries, RecordPayout, RecordTillOperation, RegisterInvoicePayment, RequestAdvance, ResolveSession, UpdateOrganizationSettings,
   type Actor, type CompensationDependencies, type InvoiceNumberSequence, type InvoiceRepository, type PaymentRepository, type ProductRepository, type PasswordHasher, type SessionRepository, type SettingsRepository, type TillRepository, type TransactionRunner, type UserRepository, type IdGenerator, type Clock, type PersonRepository, type OfferingRepository, type AuditRepository,
 } from '@opskit/core';
+import type { ApplicationPort } from '../application/application-port.js';
 
 export type ApplicationDependencies = CompensationDependencies & { settings: SettingsRepository; products: ProductRepository; invoices: InvoiceRepository; invoiceNumbers: InvoiceNumberSequence; payments: PaymentRepository; people: PersonRepository; offerings: OfferingRepository; tills: TillRepository; audits: AuditRepository; users: UserRepository; sessions: SessionRepository; hasher: PasswordHasher; ids: IdGenerator; clock: Clock; transactions: TransactionRunner; sessionTtlHours: number };
 
-export class ApplicationFacade {
+export class ApplicationFacade implements ApplicationPort {
   private readonly operations: OperationsQueries;
   private readonly invoices: InvoiceQueries;
   constructor(private readonly deps: ApplicationDependencies) {

@@ -9,15 +9,16 @@
     "seed": "tsx --env-file-if-exists=../../.env src/seed.ts",
     "start": "node --env-file-if-exists=../../.env dist/main.js",
     "build": "tsup",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "contract:baseline": "tsx test/generate-contract-baseline.ts"
   },
   "dependencies": {
-    "@fastify/cookie": "11.1.3",
+    "@hono/node-server": "2.1.4",
     "@opskit/config": "0.1.0",
     "@opskit/contracts": "0.1.0",
     "@opskit/core": "0.1.0",
     "@opskit/sqlite": "0.1.0",
-    "fastify": "5.12.5",
+    "hono": "4.13.13",
     "zod": "4.6.5"
   },
   "devDependencies": {

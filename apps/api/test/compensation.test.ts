@@ -4,7 +4,7 @@ import { createTestApp, login } from './helpers';
 
 let context: Awaited<ReturnType<typeof createTestApp>>;
 beforeEach(async () => { context = await createTestApp(); });
-afterEach(() => context.app.close());
+afterEach(() => context.close());
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -12,8 +12,8 @@ async function asUser(email: string, password: string) {
   const { token } = await login(context.app, email, password);
   const headers = { authorization: `Bearer ${token}` };
   return {
-    get: (url: string) => context.app.inject({ method: 'GET', url, headers }),
-    post: (url: string, payload: unknown = {}) => context.app.inject({ method: 'POST', url, headers, payload: payload as Record<string, unknown> }),
+    get: (url: string) => context.app.call({ method: 'GET', url, headers }),
+    post: (url: string, payload: unknown = {}) => context.app.call({ method: 'POST', url, headers, payload: payload as Record<string, unknown> }),
   };
 }
 
@@ -43,7 +43,7 @@ describe('compensation endpoints', () => {
       validate: (component: { amountMinor?: unknown }) => { if (!Number.isSafeInteger(component.amountMinor)) throw new DomainError('Bonus amount must be a safe integer'); },
       earn: (component: { key: string; label: string; type: string; amountMinor?: number }) => ({ key: component.key, label: component.label, type: component.type, variable: false, amountMinor: component.amountMinor ?? 0 }),
     };
-    await context.app.close();
+    context.close();
     context = await createTestApp({ components: { flatBonus } });
     const owner = await asUser('owner@example.com', 'owner-password-1');
     const created = await owner.post('/v1/compensation/plans', { name: 'Bonus', components: [{ type: 'flatBonus', key: 'bonus', label: 'Bonus', amountMinor: 700 }] });
@@ -95,10 +95,10 @@ describe('compensation endpoints', () => {
     await owner.post('/v1/compensation/pay-periods', { personId: person.id, schedule: { kind: 'weekly', startWeekday: new Date().getUTCDay() }, containingDate: today });
     const settings = (await owner.get('/v1/settings')).json() as { operations: { invoicing: { allowPartialPayments: boolean; defaultTaxRateBasisPoints: number; numberPrefix: string; numberPadding: number }; compensation: { advances: Record<string, unknown> } }; modules: { key: string; enabled: boolean }[] };
     settings.operations.compensation.advances.maxPerRequestMinor = 500;
-    expect((await context.app.inject({ method: 'PUT', url: '/v1/settings', headers: { authorization: `Bearer ${(await login(context.app, 'owner@example.com', 'owner-password-1')).token}` }, payload: settings })).statusCode).toBe(200);
+    expect((await context.app.call({ method: 'PUT', url: '/v1/settings', headers: { authorization: `Bearer ${(await login(context.app, 'owner@example.com', 'owner-password-1')).token}` }, payload: settings })).statusCode).toBe(200);
     expect((await owner.post('/v1/compensation/advances', { personId: person.id, amountMinor: 501 })).statusCode).toBe(422);
     settings.modules = settings.modules.map((module) => (module.key === 'compensation' ? { ...module, enabled: false } : module));
-    await context.app.inject({ method: 'PUT', url: '/v1/settings', headers: { authorization: `Bearer ${(await login(context.app, 'owner@example.com', 'owner-password-1')).token}` }, payload: settings });
+    await context.app.call({ method: 'PUT', url: '/v1/settings', headers: { authorization: `Bearer ${(await login(context.app, 'owner@example.com', 'owner-password-1')).token}` }, payload: settings });
     expect((await owner.get('/v1/compensation/plans')).statusCode).toBe(403);
   });
 });
